@@ -77,11 +77,14 @@ prediction=apply_map(prediction[0],{1:'Positive',0:'Negative'})
 
 prediction_proba = load_clf.predict_proba(df)
 
-st.subheader('Prediction')
+st.subheader('Prediction:')
 st.write(prediction)
 
-st.subheader('Prediction Probability')
-st.write(prediction_proba)
+st.subheader('Prediction Probability:')
+st.write('The probability of the person having diabetes is %:')
+st.write('Positive: ', prediction_proba[0][1])
+st.write('Negative:', prediction_proba[0][0])
+
 
 st.write('---')
 
