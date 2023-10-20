@@ -35,7 +35,7 @@ def user_input_features():
     Obesity = st.sidebar.selectbox('Obesity', ('Yes', 'No'))
     
     #Map it all to 0 and 1
-    Gender=apply_map(Gender,{'Male':1,'Female:':0})
+    Gender=apply_map(Gender,{'Male':1,'Female':0})
     Polyuria=apply_map(Polyuria,{'Yes':1,'No':0})
     Polydipsia=apply_map(Polydipsia,{'Yes':1,'No':0})
     sudden_weight_loss=apply_map(sudden_weight_loss,{'Yes':1,'No':0})
