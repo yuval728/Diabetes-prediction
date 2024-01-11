@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
+import os
 
 
 st.title('Diabetes Prediction App')
@@ -65,6 +66,18 @@ def apply_map(x, map_dict):
     else:
         return x
     
+def appendNewData(data,prediction):
+    try:
+        data['class']=prediction
+        filePath='new_data.csv'
+        if os.path.isfile(filePath):
+            data.to_csv(filePath,mode='a',index=False,header=False)
+        else:
+            data.to_csv(filePath,mode='a',index=False,header=True)
+    
+    except Exception as e:
+        print(e)
+    
 
 df = user_input_features()
 
@@ -72,7 +85,7 @@ st.subheader('User Input parameters')
 st.write(df)
  
 prediction = load_clf.predict(df)
-
+pred=prediction[0]
 prediction=apply_map(prediction[0],{1:'Positive',0:'Negative'})
 
 prediction_proba = load_clf.predict_proba(df)
@@ -84,9 +97,16 @@ st.subheader('Prediction Probability:')
 st.write('The probability of the person having diabetes is %:')
 st.write('Positive: ', prediction_proba[0][1])
 st.write('Negative:', prediction_proba[0][0])
+st.write('\n')
 
 
+st.write('Contribute to data if the output is correct:')
+if st.button('Contribute',type='primary'):
+    appendNewData(df,pred)
+    st.write('Thank you!! :smiley:')
+    
 st.write('---')
+
 
 #? How to run the app
 #? streamlit run app.py
