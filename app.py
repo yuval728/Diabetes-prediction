@@ -54,10 +54,7 @@ def user_input_features():
     
     data = { 'Gender': Gender, 'Polyuria': Polyuria, 'Polydipsia': Polydipsia, 'sudden weight loss': sudden_weight_loss, 'weakness': weakness, 'Polyphagia': Polyphagia, 'Genital thrush': Genital_thrush, 'visual blurring': visual_blurring, 'Itching': Itching, 'Irritability': Irritability, 'delayed healing': delayed_healing, 'partial paresis': partial_paresis, 'muscle stiffness': muscle_stiffness, 'Alopecia': Alopecia, 'Obesity': Obesity,'Age': Age,}
     
-    features = pd.DataFrame(data, index=[0])
-    
-    
-    return features
+    return data
 
 def apply_map(x, map_dict):
     if x in map_dict.keys():
@@ -66,8 +63,9 @@ def apply_map(x, map_dict):
         return x
     
 
-df = user_input_features()
-
+data= user_input_features()
+df=pd.DataFrame(data, index=[0])
+    
 st.subheader('User Input parameters')
 st.write(df)
  
