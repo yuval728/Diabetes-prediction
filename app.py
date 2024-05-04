@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-import os
+from tensorflow.keras.models import load_model
 
 
 st.title('Diabetes Prediction App')
@@ -12,9 +12,9 @@ This app predicts the **Diabetes** of a person!
 """)
 st.write('---')
 
-# Reads in saved classification model
+scaler = pickle.load(open('scaler.pkl', 'rb'))
 load_clf = pickle.load(open('model.pkl', 'rb'))
-
+load_dl_model = load_model('diabetes_model.keras')
 
 def user_input_features():
 
@@ -53,12 +53,10 @@ def user_input_features():
     Obesity=apply_map(Obesity,{'Yes':1,'No':0})
     
     
-    data = { 'Gender': Gender, 'Polyuria': Polyuria, 'Polydipsia': Polydipsia, 'sudden weight loss': sudden_weight_loss, 'weakness': weakness, 'Polyphagia': Polyphagia, 'Genital thrush': Genital_thrush, 'visual blurring': visual_blurring, 'Itching': Itching, 'Irritability': Irritability, 'delayed healing': delayed_healing, 'partial paresis': partial_paresis, 'muscle stiffness': muscle_stiffness, 'Alopecia': Alopecia, 'Obesity': Obesity,'Age': Age,}
+    data = { 'Gender': Gender, 'Polyuria': Polyuria, 'Polydipsia': Polydipsia, 'sudden weight loss': sudden_weight_loss, 'weakness': weakness, 'Polyphagia': Polyphagia, 'Genital thrush': Genital_thrush, 'visual blurring': visual_blurring, 'Itching': Itching, 'Irritability': Irritability, 'delayed healing': delayed_healing, 'partial paresis': partial_paresis, 'muscle stiffness': muscle_stiffness, 'Alopecia': Alopecia, 'Obesity': Obesity,'Age': Age}
+    data2 = { 'Age': Age,'Gender': Gender, 'Polyuria': Polyuria, 'Polydipsia': Polydipsia, 'sudden weight loss': sudden_weight_loss, 'weakness': weakness, 'Polyphagia': Polyphagia, 'Genital thrush': Genital_thrush, 'visual blurring': visual_blurring, 'Itching': Itching, 'Irritability': Irritability, 'delayed healing': delayed_healing, 'partial paresis': partial_paresis, 'muscle stiffness': muscle_stiffness, 'Alopecia': Alopecia, 'Obesity': Obesity}
     
-    features = pd.DataFrame(data, index=[0])
-    
-    
-    return features
+    return data,data2
 
 def apply_map(x, map_dict):
     if x in map_dict.keys():
@@ -66,21 +64,10 @@ def apply_map(x, map_dict):
     else:
         return x
     
-def appendNewData(data,prediction):
-    try:
-        data['class']=prediction
-        filePath='new_data.csv'
-        if os.path.isfile(filePath):
-            data.to_csv(filePath,mode='a',index=False,header=False)
-        else:
-            data.to_csv(filePath,mode='a',index=False,header=True)
-    
-    except Exception as e:
-        print(e)
-    
 
-df = user_input_features()
-
+data,data2= user_input_features()
+df=pd.DataFrame(data, index=[0])
+    
 st.subheader('User Input parameters')
 st.write(df)
  
@@ -95,15 +82,23 @@ st.write(prediction)
 
 st.subheader('Prediction Probability:')
 st.write('The probability of the person having diabetes is %:')
-st.write('Positive: ', prediction_proba[0][1])
-st.write('Negative:', prediction_proba[0][0])
-st.write('\n')
+st.write('Positive: ', round(prediction_proba[0][1]*100, 2))
+st.write('Negative:', round(prediction_proba[0][0]*100, 2))
+
+normalized_data = scaler.transform(pd.DataFrame(data2, index=[0]))
+normalized_data=pd.DataFrame(normalized_data, columns=df.columns)
+prediction_dl = load_dl_model.predict(normalized_data)
+
+prediction_dl_round=apply_map(np.round(prediction_dl[0][0]),{1:'Positive',0:'Negative'})
+
+st.subheader('Prediction using Deep Learning Model:')
+st.write(prediction_dl_round)
+st.subheader('Prediction Probability:')
+st.write('The probability of the person having diabetes is %:')
+st.write('Positive: ', round(prediction_dl[0][0]*100, 2))
+st.write('Negative:', round((1-prediction_dl[0][0])*100, 2))
 
 
-st.write('Contribute to data if the output is correct:')
-if st.button('Contribute',type='primary'):
-    appendNewData(df,pred)
-    st.write('Thank you!! :smiley:')
     
 st.write('---')
 
